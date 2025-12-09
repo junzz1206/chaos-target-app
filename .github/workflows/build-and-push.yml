@@ -2,11 +2,13 @@ name: Build and Push Online Boutique Images (GHCR)
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
+      - feat/online-boutique-src
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
   workflow_dispatch:
-
 env:
   IMAGE_NAMESPACE: ${{ github.repository_owner }}
 
