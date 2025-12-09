@@ -5,7 +5,6 @@ on:
     branches: [ "rehearsal" ]
 
 env:
-  # 아래 변수들이 $ 표시와 함께 그대로 들어가야 합니다!
   IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/online-boutique-frontend
   INFRA_REPO: ${{ github.repository_owner }}/chaos-gitops-lab
 
@@ -40,11 +39,13 @@ jobs:
         repository: ${{ env.INFRA_REPO }}
         token: ${{ secrets.GIT_PAT }}
         path: infra-repo
+        ref: rehearsal   # 👈 [중요] 여기가 추가됐습니다! (리허설 브랜치를 가져와라!)
 
     - name: Modify YAML and Push
       run: |
         cd infra-repo/k8s-manifests/rehearsal
-        # 아래 sed 명령어 확인!
+        
+        # 이미지 태그 변경
         sed -i "s|image: .*online-boutique-frontend:.*|image: ${{ env.IMAGE_NAME }}:${{ github.sha }}|g" frontend.yaml
         
         git config user.name "GitHub Actions"
