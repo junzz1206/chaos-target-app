@@ -2,15 +2,12 @@ name: Build and Push Online Boutique Images (GHCR)
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
+    branches: [ main ]
   workflow_dispatch:
 
 env:
-  REGISTRY: ghcr.io
   IMAGE_NAMESPACE: ${{ github.repository_owner }}
 
 jobs:
@@ -37,14 +34,6 @@ jobs:
     steps:
       - name: Checkout source repo
         uses: actions/checkout@v4
-
-      - name: Configure git for infra repo (optional)
-        run: |
-          if [ -n "$GIT_PAT" ]; then
-            git config --global url."https://$GIT_PAT@github.com/".insteadOf "https://github.com/"
-          fi
-        env:
-          GIT_PAT: ${{ secrets.GIT_PAT }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
