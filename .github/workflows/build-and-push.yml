@@ -9,6 +9,7 @@ on:
     branches:
       - main
   workflow_dispatch:
+
 env:
   IMAGE_NAMESPACE: ${{ github.repository_owner }}
 
@@ -20,41 +21,41 @@ jobs:
       contents: read
       packages: write
 
-strategy:
-  fail-fast: false
-  matrix:
-    include:
-      - service: frontend
-        context: src/frontend
-        dockerfile: src/frontend/Dockerfile
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - service: frontend
+            context: src/frontend
+            dockerfile: src/frontend/Dockerfile
 
-      - service: productcatalogservice
-        context: src/productcatalogservice
-        dockerfile: src/productcatalogservice/Dockerfile
+          - service: productcatalogservice
+            context: src/productcatalogservice
+            dockerfile: src/productcatalogservice/Dockerfile
 
-      - service: cartservice
-        context: src/cartservice/src
-        dockerfile: src/cartservice/src/Dockerfile  # ← 여기 중요
+          - service: cartservice
+            context: src/cartservice/src
+            dockerfile: src/cartservice/src/Dockerfile
 
-      - service: checkoutservice
-        context: src/checkoutservice
-        dockerfile: src/checkoutservice/Dockerfile
+          - service: checkoutservice
+            context: src/checkoutservice
+            dockerfile: src/checkoutservice/Dockerfile
 
-      - service: paymentservice
-        context: src/paymentservice
-        dockerfile: src/paymentservice/Dockerfile
+          - service: paymentservice
+            context: src/paymentservice
+            dockerfile: src/paymentservice/Dockerfile
 
-      - service: shippingservice
-        context: src/shippingservice
-        dockerfile: src/shippingservice/Dockerfile
+          - service: shippingservice
+            context: src/shippingservice
+            dockerfile: src/shippingservice/Dockerfile
 
-      - service: emailservice
-        context: src/emailservice
-        dockerfile: src/emailservice/Dockerfile
+          - service: emailservice
+            context: src/emailservice
+            dockerfile: src/emailservice/Dockerfile
 
-      - service: currencyservice
-        context: src/currencyservice
-        dockerfile: src/currencyservice/Dockerfile
+          - service: currencyservice
+            context: src/currencyservice
+            dockerfile: src/currencyservice/Dockerfile
 
     steps:
       - name: Checkout source repo
@@ -68,14 +69,4 @@ strategy:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GHCR_TOKEN }}
-
-    - name: Build and push image for ${{ matrix.service }}
-  uses: docker/build-push-action@v6
-  with:
-    context: ./${{ matrix.context }}
-    file: ./${{ matrix.dockerfile }}
-    push: true
-    tags: |
-      ghcr.io/${{ env.IMAGE_NAMESPACE }}/ob-${{ matrix.service }}:latest
-      ghcr.io/${{ env.IMAGE_NAMESPACE }}/ob-${{ matrix.service }}:${{ github.sha }}
+          password: ${{ secrets.GITHUB_TOKEN }}
