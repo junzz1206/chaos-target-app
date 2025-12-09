@@ -35,9 +35,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Add infra repo access
-        if: ${{ secrets.GIT_PAT != '' }}
         run: |
           git config --global url."https://${{ secrets.GIT_PAT }}@github.com/".insteadOf "https://github.com/"
+
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
