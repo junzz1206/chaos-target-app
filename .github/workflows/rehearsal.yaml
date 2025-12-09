@@ -1,0 +1,52 @@
+name: Rehearsal CI (Frontend Update)
+
+on:
+  push:
+    branches: [ "rehearsal" ]
+
+env:
+  IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/online-boutique-frontend
+  INFRA_REPO: ${{ github.repository_owner }}/chaos-gitops-lab
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Log in to GHCR
+      uses: docker/login-action@v2
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GHCR_TOKEN }}
+
+    - name: Build and Push Docker Image
+      uses: docker/build-push-action@v4
+      with:
+        context: ./src/frontend
+        push: true
+        tags: ${{ env.IMAGE_NAME }}:${{ github.sha }}
+
+    - name: Update Image Tag in Rehearsal Path
+      uses: actions/checkout@v3
+      with:
+        repository: ${{ env.INFRA_REPO }}
+        token: ${{ secrets.GIT_PAT }}
+        path: infra-repo
+
+    - name: Modify YAML and Push
+      run: |
+        cd infra-repo/k8s-manifests/rehearsal
+        sed -i "s|image: .*online-boutique-frontend:.*|image: ${{ env.IMAGE_NAME }}:${{ github.sha }}|g" frontend.yaml
+        
+        git config user.name "GitHub Actions"
+        git config user.email "actions@github.com"
+        git add .
+        git commit -m "Update rehearsal frontend tag to ${{ github.sha }}"
+        git push
