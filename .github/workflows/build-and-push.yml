@@ -11,14 +11,18 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  # 이미지 경로: ghcr.io/<owner>/<image>
   IMAGE_NAMESPACE: ${{ github.repository_owner }}
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: read
+      packages: write
+
     strategy:
+      fail-fast: false
       matrix:
         service:
           - frontend
@@ -31,13 +35,16 @@ jobs:
           - currencyservice
 
     steps:
-      - name: Checkout source code
+      - name: Checkout source repo
         uses: actions/checkout@v4
 
-      - name: Add infra repo access
+      - name: Configure git for infra repo (optional)
         run: |
-          git config --global url."https://${{ secrets.GIT_PAT }}@github.com/".insteadOf "https://github.com/"
-
+          if [ -n "$GIT_PAT" ]; then
+            git config --global url."https://$GIT_PAT@github.com/".insteadOf "https://github.com/"
+          fi
+        env:
+          GIT_PAT: ${{ secrets.GIT_PAT }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -49,8 +56,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GHCR_TOKEN }}
 
-
-      - name: Build and Push image for ${{ matrix.service }}
+      - name: Build and push image for ${{ matrix.service }}
         uses: docker/build-push-action@v6
         with:
           context: ./src/${{ matrix.service }}
