@@ -26,36 +26,37 @@ jobs:
       matrix:
         include:
           - service: frontend
-            context: src/frontend
-            dockerfile: src/frontend/Dockerfile
+            context: ./src/frontend
+            dockerfile: ./src/frontend/Dockerfile
 
           - service: productcatalogservice
-            context: src/productcatalogservice
-            dockerfile: src/productcatalogservice/Dockerfile
+            context: ./src/productcatalogservice
+            dockerfile: ./src/productcatalogservice/Dockerfile
 
+          # 🔸 cartservice만 특이 구조: src/cartservice/src/Dockerfile
           - service: cartservice
-            context: src/cartservice/src
-            dockerfile: src/cartservice/src/Dockerfile
+            context: ./src/cartservice/src
+            dockerfile: ./src/cartservice/src/Dockerfile
 
           - service: checkoutservice
-            context: src/checkoutservice
-            dockerfile: src/checkoutservice/Dockerfile
+            context: ./src/checkoutservice
+            dockerfile: ./src/checkoutservice/Dockerfile
 
           - service: paymentservice
-            context: src/paymentservice
-            dockerfile: src/paymentservice/Dockerfile
+            context: ./src/paymentservice
+            dockerfile: ./src/paymentservice/Dockerfile
 
           - service: shippingservice
-            context: src/shippingservice
-            dockerfile: src/shippingservice/Dockerfile
+            context: ./src/shippingservice
+            dockerfile: ./src/shippingservice/Dockerfile
 
           - service: emailservice
-            context: src/emailservice
-            dockerfile: src/emailservice/Dockerfile
+            context: ./src/emailservice
+            dockerfile: ./src/emailservice/Dockerfile
 
           - service: currencyservice
-            context: src/currencyservice
-            dockerfile: src/currencyservice/Dockerfile
+            context: ./src/currencyservice
+            dockerfile: ./src/currencyservice/Dockerfile
 
     steps:
       - name: Checkout source repo
@@ -69,4 +70,14 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.GHCR_TOKEN || secrets.GITHUB_TOKEN }}
+
+      - name: Build and push image for ${{ matrix.service }}
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.dockerfile }}
+          push: true
+          tags: |
+            ghcr.io/${{ env.IMAGE_NAMESPACE }}/ob-${{ matrix.service }}:latest
+            ghcr.io/${{ env.IMAGE_NAMESPACE }}/ob-${{ matrix.service }}:${{ github.sha }}
