@@ -43,7 +43,7 @@ jobs:
 
     - name: Modify YAML and Push
       run: |
-        cd infra-repo/k8s-manifests/rehearsal
+        cd infra-repo/app
         
         # 이미지 태그 변경
         sed -i "s|image: .*online-boutique-frontend:.*|image: ${{ env.IMAGE_NAME }}:${{ github.sha }}|g" frontend.yaml
