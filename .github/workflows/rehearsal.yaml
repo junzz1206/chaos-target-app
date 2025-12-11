@@ -5,7 +5,7 @@ on:
     branches: [ "rehearsal" ]
 
 env:
-  IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/online-boutique-frontend
+  IMAGE_NAME: ghcr.io/hban1/online-boutique-frontend
   INFRA_REPO: ${{ github.repository_owner }}/chaos-gitops-lab
 
 jobs:
